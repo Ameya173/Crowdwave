@@ -173,11 +173,4 @@ Offline MiniLM: download the `Xenova/all-MiniLM-L6-v2` files into `client/public
 - Q&A is pseudonymous, not anonymous. Members who join after a key rotation cannot read files from older epochs.
 - Not a BitTorrent replacement and no background transfers on phones (browser limits).
 
-## 10. Making it a strong final-year submission
 
-1. Run the real trial: 20 devices on a hotspot, one 100-500 MB file, record the time and screenshot the Swarm tab.
-2. Put the benchmark table and the real-device numbers side by side in your report.
-3. Demo the failure case: close 4 phones mid-transfer; the rest finish.
-4. Demo the embargo: share a file locked for 3 minutes, show the room's receipts reach 20 of 20, then watch every phone unlock at the same second.
-5. Show the tamper test: it is covered in `client/test/core.test.js` (forged manifest, corrupted chunk, wrong channel role, replay).
-6. Write one sentence like: "Distributed a 500 MB file to 50 peers in X seconds using Y% of the sender's upload; recovered from 20% peer failure with no data loss."
