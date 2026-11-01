@@ -52,11 +52,35 @@ const DoorIcon = () => (
 export default function Home() {
   const app = useApp();
   const [name, setName] = useState(app.identity?.name || '');
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveErr, setSaveErr] = useState('');
   const [room, setRoom] = useState({ name: '', openJoin: false, hours: 24 });
   const [invite, setInvite] = useState('');
   const [scan, setScan] = useState(false);
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
+
+  React.useEffect(() => {
+    if (app.identity?.name && !name) {
+      setName(app.identity.name);
+    }
+  }, [app.identity?.name]);
+
+  const handleSaveName = async () => {
+    const trimmed = (name || '').trim();
+    if (!trimmed) {
+      setSaveErr('Please enter a display name.');
+      return;
+    }
+    setSaveErr('');
+    try {
+      await app.setName(trimmed);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2500);
+    } catch (e) {
+      setSaveErr('Could not save name: ' + (e.message || e));
+    }
+  };
 
   const join = async (text) => {
     const i = parseInvite(text);
@@ -104,9 +128,27 @@ export default function Home() {
               Your display name
             </label>
             <div className="row">
-              <input id="nm" type="text" maxLength={32} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Ameya" style={{ flex: 1 }} />
-              <button className="btn" onClick={() => app.setName(name)}>Save</button>
+              <input
+                id="nm"
+                type="text"
+                maxLength={32}
+                value={name}
+                onChange={(e) => { setName(e.target.value); setSaveErr(''); }}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleSaveName(); }}
+                placeholder="e.g. Ameya"
+                style={{ flex: 1 }}
+              />
+              <button className="btn" onClick={handleSaveName}>
+                Save
+              </button>
             </div>
+            {saveSuccess && (
+              <div className="save-badge" style={{ marginTop: 8 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Display name saved!</span>
+              </div>
+            )}
+            {saveErr && <div className="err" style={{ marginTop: 8, padding: '6px 10px', fontSize: '.82rem' }}>{saveErr}</div>}
           </div>
           <div style={{ marginBottom: 10 }}>
             <div className="small muted" style={{ marginBottom: 4, fontWeight: 600 }}>Device ID</div>

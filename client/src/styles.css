@@ -24,6 +24,7 @@
   --shadow:       0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04);
   --shadow-lg:    0 8px 24px rgba(99,102,241,.12);
   --shadow-xl:    0 20px 48px rgba(99,102,241,.18);
+  --header-bg:    rgba(248, 249, 255, 0.88);
   --r:            14px;
   --r-sm:         8px;
   --mono:         ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
@@ -80,6 +81,7 @@
   --danger-light: #450a0a;
   --shadow:       0 1px 3px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.2);
   --shadow-lg:    0 8px 24px rgba(0,0,0,.4);
+  --header-bg:    rgba(15, 17, 23, 0.88);
   --g1:           #1e2235;
   --g2:           #14172a;
   color-scheme: dark;
@@ -133,6 +135,7 @@
     --danger-light: #450a0a;
     --shadow:       0 1px 3px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.2);
     --shadow-lg:    0 8px 24px rgba(0,0,0,.4);
+    --header-bg:    rgba(15, 17, 23, 0.88);
     --g1:           #1e2235;
     --g2:           #14172a;
     color-scheme: dark;
@@ -182,15 +185,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(248,249,255,.82);
+  background: var(--header-bg);
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   border-bottom: 1px solid var(--border);
-  transition: box-shadow .3s ease;
+  transition: background .25s ease, border-color .25s ease, box-shadow .3s ease;
 }
-.top.scrolled { box-shadow: 0 2px 20px rgba(99,102,241,.08); }
-:root[data-theme=dark] .top,
-@media (prefers-color-scheme: dark) { :root:not([data-theme=light]) .top { background: rgba(15,17,23,.82); } }
+.top.scrolled { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); }
+:root[data-theme=dark] .top.scrolled { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); }
 .top .wrap { display: flex; align-items: center; gap: 14px; padding-top: 12px; padding-bottom: 12px; }
 
 .brand {
@@ -218,12 +220,22 @@ button, input, select, textarea { font: inherit; color: inherit; }
   border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--surface);
-  color: var(--text-2);
+  color: var(--text);
   cursor: pointer;
   transition: all .2s ease;
   padding: 0;
 }
 .btn-icon:hover { background: var(--surface-2); color: var(--primary); border-color: var(--primary); transform: translateY(-1px); }
+
+.save-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--success);
+  font-size: 0.82rem;
+  font-weight: 600;
+  animation: fadeSlideUp 0.2s ease both;
+}
 
 .install-btn {
   display: inline-flex;

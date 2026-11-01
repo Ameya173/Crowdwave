@@ -58,9 +58,28 @@ export default function App() {
   const headerRef = useRef(null);
 
   useEffect(() => {
-    if (theme === 'auto') document.documentElement.removeAttribute('data-theme');
-    else document.documentElement.dataset.theme = theme;
+    if (theme === 'auto') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
     localStorage.setItem('cw.theme', theme);
+
+    const isDark = theme === 'dark' || (theme === 'auto' && window.matchMedia?.('(prefers-color-scheme: dark)')?.matches);
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) metaTheme.setAttribute('content', isDark ? '#0f1117' : '#f8f9ff');
+  }, [theme]);
+
+  useEffect(() => {
+    if (theme !== 'auto') return;
+    const mq = window.matchMedia?.('(prefers-color-scheme: dark)');
+    if (!mq) return;
+    const handler = (e) => {
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute('content', e.matches ? '#0f1117' : '#f8f9ff');
+    };
+    mq.addEventListener?.('change', handler);
+    return () => mq.removeEventListener?.('change', handler);
   }, [theme]);
 
   useEffect(() => {

@@ -26,7 +26,19 @@ class App {
     } catch (e) { this.fatal = e.message; }
     this.notify();
   }
-  async setName(name) { this.identity.name = name.trim().slice(0, 32); await store.put('identity', this.identity, 'me'); this.notify(); }
+  async setName(name) {
+    if (!this.identity) {
+      let id = await store.get('identity', 'me');
+      if (!id) { id = await generateIdentity(); await store.put('identity', id, 'me'); }
+      this.identity = id;
+    }
+    const cleanName = (name || '').trim().slice(0, 32);
+    this.identity.name = cleanName;
+    await store.put('identity', this.identity, 'me');
+    if (this.signaling) this.signaling.setName(cleanName);
+    this.notify();
+    return cleanName;
+  }
   async createRoom({ name, openJoin, hours }) {
     await this.signaling.whenReady();
     const expiresAt = hours ? Date.now() + hours * 3600e3 : null;
