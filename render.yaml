@@ -1,0 +1,11 @@
+# Render.com blueprint: New + > Blueprint, point at your Git repo.
+services:
+  - type: web
+    name: crowdwave
+    runtime: docker
+    plan: starter            # persistent disks need a paid instance
+    healthCheckPath: /api/health
+    envVars:
+      - { key: TRUST_PROXY, value: "1" }
+      - { key: CACHE_MB, value: "2048" }
+    disk: { name: crowdwave-data, mountPath: /data, sizeGB: 5 }

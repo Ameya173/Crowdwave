@@ -1,0 +1,19 @@
+{
+  "name": "crowdwave",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Crowdwave v2 - swarm file distribution and gossip messaging over WebRTC, with an optional Campus Node",
+  "scripts": {
+    "setup": "npm --prefix server install && npm --prefix client install",
+    "dev": "concurrently -k -n server,client -c cyan,magenta \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "build": "npm --prefix client run build",
+    "start": "npm --prefix server start",
+    "start:lan": "npm --prefix server run start:lan",
+    "test": "npm --prefix client test",
+    "bench": "node bench/run.mjs",
+    "bench:cluster": "node bench/cluster-eval.mjs",
+    "bench:gossip": "node bench/gossip.mjs"
+  },
+  "devDependencies": { "concurrently": "^9.0.1" },
+  "engines": { "node": ">=20" }
+}

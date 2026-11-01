@@ -1,0 +1,21 @@
+// CLI benchmark: node bench/run.mjs [--peers 50] [--mb 500] [--chunk 2048] [--runs 3] [--source 100] [--up 50]
+import { compare, runSim } from '../client/src/core/sim.js';
+import { gossipSim } from '../client/src/core/gossipsim.js';
+import fs from 'node:fs';
+const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i > 0 ? Number(process.argv[i + 1]) : d; };
+const base = { peers: arg('peers', 50), fileMB: arg('mb', 500), chunkKB: arg('chunk', 2048), sourceMbps: arg('source', 100), peerUpMbps: arg('up', 50), dt: arg('dt', 1) };
+const runs = arg('runs', 3);
+console.log('Config:', base, 'runs:', runs, '\n');
+const fmt = (x, d = 1) => (x == null ? 'n/a' : x.toFixed(d));
+const res = compare(base, runs);
+console.log('Strategy comparison (time until the LAST peer finishes)');
+console.table(Object.fromEntries(Object.entries(res).map(([k, v]) => [v.label, { 'time to last (s)': fmt(v.timeToLast), 'sd (s)': fmt(v.sd), 'mean completion (s)': fmt(v.mean), 'source upload (MB)': fmt(v.sourceMB, 0), 'source upload (% of single)': fmt(v.sourcePct) }])));
+const sp = res.single.timeToLast / res.bandit.timeToLast;
+console.log(`\nHeadline: ${base.fileMB} MB to ${base.peers} peers - swarm ${fmt(res.bandit.timeToLast)} s vs single source ${fmt(res.single.timeToLast)} s (${fmt(sp)}x faster); the source uploaded ${fmt(res.bandit.sourcePct)}% of the single-source bytes.`);
+const f = runSim({ ...base, strategy: 'bandit', failFrac: 0.2, failAtSec: res.bandit.timeToLast / 3 });
+console.log(`Kill 20% of peers at t=${fmt(res.bandit.timeToLast / 3)} s: ${f.completed}/${f.alive} surviving peers completed, ${f.failedTransfers} failed transfers, last at ${fmt(f.timeToLast)} s.`);
+const g = gossipSim({ peers: base.peers, fanout: 3, ttl: 8, aeRounds: 0, seed: 4 });
+console.log(`Embargoed drop: pre-distribute, then release. Opening the file at release time costs a key message that reached ${fmt(g.reachPct, 0)}% of ${base.peers} devices by gossip alone (p95 ${fmt(g.p95, 0)} ms); downloading only at release time would take ${fmt(res.bandit.timeToLast)} s.`);
+fs.mkdirSync(new URL('./out/', import.meta.url), { recursive: true });
+fs.writeFileSync(new URL('./out/results.json', import.meta.url), JSON.stringify({ base, runs, res, failure: f }, null, 2));
+console.log('\nSaved bench/out/results.json');

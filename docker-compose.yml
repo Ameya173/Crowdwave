@@ -1,0 +1,25 @@
+# One command Campus Node:  docker compose up -d --build
+# With TURN relay too:      docker compose --profile turn up -d --build
+services:
+  node:
+    build: .
+    ports: ["8787:8787"]
+    environment:
+      PORT: "8787"
+      HTTPS: "${HTTPS:-1}"            # self-signed HTTPS for LAN use. Set HTTPS=0 behind a TLS-terminating proxy.
+      TRUST_PROXY: "${TRUST_PROXY:-0}"
+      CACHE_MB: "${CACHE_MB:-4096}"
+      CW_OFFLINE: "${CW_OFFLINE:-0}"
+      TURN_URL: "${TURN_URL:-}"       # e.g. turn:192.168.1.10:3478
+      TURN_SECRET: "${TURN_SECRET:-}"
+    volumes: ["crowdwave-data:/data"]
+    restart: unless-stopped
+  coturn:
+    profiles: ["turn"]
+    image: coturn/coturn:4.6
+    network_mode: host                 # TURN needs real UDP ports; host networking is the simple way on Linux
+    command: ["-c", "/etc/coturn/turnserver.conf"]
+    volumes: ["./deploy/turnserver.conf:/etc/coturn/turnserver.conf:ro"]
+    restart: unless-stopped
+volumes:
+  crowdwave-data:
